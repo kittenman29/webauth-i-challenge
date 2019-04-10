@@ -25,6 +25,9 @@ router.post('/login', (req, res) => {
       .first()
       .then(user => {
         if (user && bcrypt.compareSync(password, user.password)) {
+          // req.session is added by express-session
+          req.session.user = user;
+
           res.status(200).json({ message: `Welcome ${user.username}!` });
         } else {
           res.status(401).json({ message: 'Invalid Credentials' });
@@ -35,16 +38,19 @@ router.post('/login', (req, res) => {
       });
 });
 
-
-
-
-
-
-
-
-
-
-
+router.get('/logout', (req, res) => {
+  if(req.session) {
+    req.session.destroy(err => {
+      if(err) {
+        res.status(500).json({message: 'you can check out any time, but you cant leave'})
+      } else {
+        res.status(200).json({message: 'bye, thanks for visiting'})
+      }
+    })
+  } else {
+    res.status(200).json({message: 'bye, thanks for visiting'})
+  }
+})
 
 
 module.exports = router;
